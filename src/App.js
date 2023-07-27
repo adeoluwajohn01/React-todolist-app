@@ -4,6 +4,7 @@ import Input from './components/Input';
 import List from './components/List';
 
 function App() {
+  
   const[ListTodo, setListTodo] = useState([]);
   let addList = (inputText)=>{
     if(inputText !== '')
@@ -14,6 +15,7 @@ function App() {
     newListTodo.splice(key,1)
     setListTodo([...newListTodo])
   }
+ 
   return (
     <div className="container">
       <div className="container2">
@@ -22,7 +24,7 @@ function App() {
           <hr/>
           {ListTodo.map((ListItem, i)=>{
             return (
-              <List key={i} index={i} item={ListItem} delete = {deleteItem}/>
+              <List key={i} index={i} item={ListItem} delete = {deleteItem} />
             ) 
           })}
       </div>

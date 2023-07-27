@@ -1,6 +1,7 @@
 
 import React, {useState} from 'react'
 
+
 function Input(props) {
     const [inputText, setInputText] = useState('');
     const handleEnter = (e)=>{
@@ -15,7 +16,7 @@ function Input(props) {
         <input type='text' className='input-box' 
         placeholder='Enter To-do' value={inputText} onChange={e=>{
             setInputText(e.target.value)
-        }} onKeyDown={handleEnter}/>
+        }} onKeyDown={handleEnter} />
 
         <button className='btn' onClick={()=>{
             props.addList(inputText)
