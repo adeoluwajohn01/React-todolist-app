@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Input from './components/Input';
 import List from './components/List';
 
+const getlocalStorage = () => {
+  let ListTodo = localStorage.getItem("ListTodo");
+  if (ListTodo) {
+    return (ListTodo = JSON.parse(localStorage.getItem("ListTodo")));
+  } else {
+    return [];
+  }
+};
+
 function App() {
   
-  const[ListTodo, setListTodo] = useState([]);
+  const[ListTodo, setListTodo] = useState(getlocalStorage());
   let addList = (inputText)=>{
     if(inputText !== '')
     setListTodo([...ListTodo,inputText]);
@@ -15,7 +24,11 @@ function App() {
     newListTodo.splice(key,1)
     setListTodo([...newListTodo])
   }
- 
+  
+  useEffect(() => {
+    localStorage.setItem("ListTodo", JSON.stringify(ListTodo));
+  }, [ListTodo]);
+
   return (
     <div className="container">
       <div className="container2">
