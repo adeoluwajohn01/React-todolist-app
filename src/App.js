@@ -1,47 +1,97 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Input from './components/Input';
-import List from './components/List';
+import storage from './libs/storage';
+import { todosKey } from './utils/constants';
+import { getUniqid } from './utils/helpers';
+import TodoItem from './components/TodoItem';
 
-const getlocalStorage = () => {
-  let ListTodo = localStorage.getItem("ListTodo");
-  if (ListTodo) {
-    return (ListTodo = JSON.parse(localStorage.getItem("ListTodo")));
-  } else {
-    return [];
+/**
+ * @typedef  {{
+ *   id: string;
+ *   content: string;
+ *   done: boolean;
+ * }} Todo
+ */
+
+/**
+ *
+ * @returns {Array<Todo>}
+ */
+
+const getLocallySavedTodos = () => {
+  const savedData = storage.get(todosKey);
+  if (savedData) {
+    return savedData;
   }
+  return [];
 };
 
 function App() {
-  
-  const[ListTodo, setListTodo] = useState(getlocalStorage());
-  let addList = (inputText)=>{
-    if(inputText !== '')
-    setListTodo([...ListTodo,inputText]);
-  }
-  const deleteItem = (key)=>{
-    let newListTodo = [...ListTodo];
-    newListTodo.splice(key,1)
-    setListTodo([...newListTodo])
-  }
-  
+  const savedTodos = getLocallySavedTodos();
+  const [todos, setTodos] = useState([...savedTodos]);
+
+  let addList = (inputText) => {
+    if (inputText !== '') {
+      const newId = getUniqid();
+      setTodos((d) => [
+        ...d,
+        {
+          id: newId,
+          content: inputText,
+          done: false,
+        },
+      ]);
+    }
+  };
+
+  const deleteItem = React.useCallback(
+    (id) => {
+      let newListTodo = [...todos];
+      const indexOfTodo = todos.findIndex((d) => d.id === id);
+      newListTodo.splice(indexOfTodo, 1);
+
+      setTodos([...newListTodo]);
+    },
+    [todos]
+  );
+
+  const toggleItemStatus = React.useCallback(
+    (id) => {
+      let newListTodo = [...todos];
+      const currentTodo = newListTodo.find((d) => d.id === id);
+      if (currentTodo) {
+        currentTodo.done = !currentTodo.done;
+        setTodos([...newListTodo]);
+      }
+    },
+    [todos]
+  );
+
   useEffect(() => {
-    localStorage.setItem("ListTodo", JSON.stringify(ListTodo));
-  }, [ListTodo]);
+    storage.set(todosKey, todos);
+  }, [todos]);
 
   return (
-    <div className="container">
-      <div className="container2">
-          <Input addList ={addList }/>
-          <h3 className='head'>What Are You Doing Today?</h3>
-          <hr/>
-          {ListTodo.map((ListItem, i)=>{
-            return (
-              <List key={i} index={i} item={ListItem} delete = {deleteItem} />
-            ) 
-          })}
+    <div className='container'>
+      <div className='container2'>
+        <Input addList={addList} />
+        <h3 className='head'>What Are You Doing Today?</h3>
+        <hr />
+        {todos.map((todoItem, i) => {
+          return (
+            <>
+              <TodoItem
+                key={i}
+                item={todoItem}
+                remove={() => deleteItem(todoItem.id)}
+                toggle={() => toggleItemStatus(todoItem.id)}
+              />
+            </>
+          );
+        })}
       </div>
-    </div> 
+    </div>
   );
 }
 
